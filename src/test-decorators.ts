@@ -9,11 +9,12 @@ export function dataSourceDecorator(
 ) {
   return async (...args: any[]) => {
     const { datasource, close } = await getInitializedDataSource();
+    let result: any;
     try {
-      const result = await fn({ datasource }, ...args);
-      return result;
+      result = await fn({ datasource }, ...args);
     } finally {
       await close();
     }
+    return result;
   };
 }

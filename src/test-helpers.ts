@@ -5,32 +5,48 @@ import { User } from './entities/user';
 import { Product } from './entities/product';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export async function getInitializedDataSource(): Promise<DataSource> {
-  const schemaName = getSchemaName();
-  await createTestSchema(config, schemaName);
-  return getDataSource(config, schemaName).initialize();
+export function getSchemaName() {
+  return `test_schema_${faker.string.uuid()}`;
 }
 
-function getDataSource(config: Config, schema: string): DataSource {
+export async function getInitializedDataSource(): Promise<{
+  datasource: DataSource;
+  close: () => Promise<void>;
+}> {
+  const datasource = getDataSource();
+  await createTestSchema(getSchemaFromDataSource(datasource));
+  await datasource.initialize();
+  return {
+    datasource,
+    close: () => destroyDataSource(datasource),
+  };
+}
+
+async function destroyDataSource(datasource: DataSource): Promise<void> {
+  await dropTestSchema(getSchemaFromDataSource(datasource));
+  await datasource.destroy();
+}
+
+function getDataSource(): DataSource {
   return new DataSource({
     ...getConnectionOptions(config),
-    schema,
+    schema: getSchemaName(),
     entities: [User, Product],
     synchronize: true,
   });
 }
 
-async function createTestSchema(
-  config: Config,
-  schemaName: string,
-): Promise<void> {
+async function createTestSchema(schemaName: string): Promise<void> {
   const adminConnection = await createConnection(getConnectionOptions(config));
+  await adminConnection.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
   await adminConnection.query(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`);
   await adminConnection.close();
 }
 
-function getSchemaName() {
-  return `test_schema_${faker.string.uuid()}`;
+async function dropTestSchema(schemaName: string): Promise<void> {
+  const adminConnection = await createConnection(getConnectionOptions(config));
+  await adminConnection.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
+  await adminConnection.close();
 }
 
 function getConnectionOptions(config: Config): PostgresConnectionOptions {
@@ -42,4 +58,8 @@ function getConnectionOptions(config: Config): PostgresConnectionOptions {
     password: config.pgPassword,
     database: config.pgDb,
   };
+}
+
+function getSchemaFromDataSource(datasource: DataSource): string {
+  return (datasource.options as PostgresConnectionOptions).schema!;
 }

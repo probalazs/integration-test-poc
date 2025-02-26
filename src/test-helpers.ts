@@ -5,10 +5,6 @@ import { User } from './entities/user';
 import { Product } from './entities/product';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export function getSchemaName() {
-  return `test_schema_${faker.string.uuid()}`;
-}
-
 export async function getInitializedDataSource(): Promise<{
   datasource: DataSource;
   close: () => Promise<void>;
@@ -20,6 +16,10 @@ export async function getInitializedDataSource(): Promise<{
     datasource,
     close: () => destroyDataSource(datasource),
   };
+}
+
+function getSchemaName() {
+  return `test_schema_${faker.string.uuid()}`;
 }
 
 async function destroyDataSource(datasource: DataSource): Promise<void> {

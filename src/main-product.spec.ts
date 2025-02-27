@@ -1,9 +1,8 @@
-import { getInitializedDataSource } from './test-helpers';
 import { Product } from './entities/product';
 import { faker } from '@faker-js/faker';
 import { dataSourceDecorator } from './test-decorators';
 
-describe('Main', () => {
+describe('Product', () => {
   it(
     'should create a new product',
     dataSourceDecorator(async ({ datasource }) => {

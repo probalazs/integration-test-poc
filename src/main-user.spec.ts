@@ -2,7 +2,7 @@ import { User } from './entities/user';
 import { faker } from '@faker-js/faker';
 import { dataSourceDecorator } from './test-decorators';
 
-describe('Main', () => {
+describe('User', () => {
   it(
     'should create a new user',
     dataSourceDecorator(async ({ datasource }) => {

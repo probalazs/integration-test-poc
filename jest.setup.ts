@@ -1,11 +1,33 @@
-import { getConnectionOptions, initContainer } from './src/test-connection';
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from '@testcontainers/postgresql';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions.js';
 
 export default async function () {
-  await initContainer();
-  await setConnectionOptions();
+  const started = await getStartedContainer();
+  (global as any).__TEST_CONTAINER = started;
+  await setConnectionOptions(started);
 }
 
-async function setConnectionOptions() {
-  const connectionOptions = await getConnectionOptions();
+async function setConnectionOptions(started: StartedPostgreSqlContainer) {
+  const connectionOptions = getConnectionOptions(started);
   process.env.__TEST_CONNECTION_OPTIONS = JSON.stringify(connectionOptions);
+}
+
+function getStartedContainer(): Promise<StartedPostgreSqlContainer> {
+  return new PostgreSqlContainer().start();
+}
+
+function getConnectionOptions(
+  started: StartedPostgreSqlContainer,
+): PostgresConnectionOptions {
+  return {
+    type: 'postgres',
+    host: started.getHost(),
+    port: started.getPort(),
+    username: started.getUsername(),
+    password: started.getPassword(),
+    database: started.getDatabase(),
+  } as PostgresConnectionOptions;
 }

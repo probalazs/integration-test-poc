@@ -1,15 +1,13 @@
 import { faker } from '@faker-js/faker';
 import { DataSource, createConnection } from 'typeorm';
-import { User } from './entities/user';
-import { Product } from './entities/product';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export async function getInitializedDataSource(): Promise<{
+export async function getInitializedDataSource(entities: any[]): Promise<{
   datasource: DataSource;
   close: () => Promise<void>;
 }> {
   const connectionOptions = getConnectionOptions();
-  const datasource = await getDataSource(connectionOptions);
+  const datasource = await getDataSource(connectionOptions, entities);
   await createTestSchema(
     getSchemaFromDataSource(datasource),
     connectionOptions,
@@ -32,11 +30,12 @@ async function destroyDataSource(datasource: DataSource): Promise<void> {
 
 function getDataSource(
   connectionOptions: PostgresConnectionOptions,
+  entities: any[],
 ): DataSource {
   return new DataSource({
     ...connectionOptions,
     schema: getSchemaName(),
-    entities: [User, Product],
+    entities,
     synchronize: true,
   });
 }

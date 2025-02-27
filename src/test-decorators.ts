@@ -1,20 +1,28 @@
 import { getInitializedDataSource } from './test-helpers';
 import { DataSource } from 'typeorm';
+import { User } from './entities/user';
+import { Product } from './entities/product';
 
-export function dataSourceDecorator(
-  fn: (
-    context: { datasource: DataSource },
-    ...args: any[]
-  ) => ReturnType<jest.ProvidesCallback>,
-) {
-  return async (...args: any[]) => {
-    const { datasource, close } = await getInitializedDataSource();
-    let result: any;
-    try {
-      result = await fn({ datasource }, ...args);
-    } finally {
-      await close();
-    }
-    return result;
-  };
+export const dataSourceDecorator = dataSourceDecoratorWithEntities([
+  User,
+  Product,
+]);
+
+export function dataSourceDecoratorWithEntities(entities: any[]) {
+  return (
+      fn: (
+        context: { datasource: DataSource },
+        ...args: any[]
+      ) => ReturnType<jest.ProvidesCallback>,
+    ) =>
+    async (...args: any[]) => {
+      const { datasource, close } = await getInitializedDataSource(entities);
+      let result: any;
+      try {
+        result = await fn({ datasource }, ...args);
+      } finally {
+        await close();
+      }
+      return result;
+    };
 }

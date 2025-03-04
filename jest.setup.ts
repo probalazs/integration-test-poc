@@ -7,10 +7,10 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 export default async function () {
   const started = await getStartedContainer();
   (global as any).__TEST_CONTAINER = started;
-  await setConnectionOptions(started);
+  setConnectionOptions(started);
 }
 
-async function setConnectionOptions(started: StartedPostgreSqlContainer) {
+function setConnectionOptions(started: StartedPostgreSqlContainer) {
   const connectionOptions = getConnectionOptions(started);
   process.env.__TEST_CONNECTION_OPTIONS = JSON.stringify(connectionOptions);
 }

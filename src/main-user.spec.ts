@@ -1,4 +1,4 @@
-import { User } from './entities/user';
+import { User } from '../entities/user';
 import { faker } from '@faker-js/faker';
 import { dataSourceDecorator } from './test-decorators';
 

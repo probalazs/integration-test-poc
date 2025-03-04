@@ -1,4 +1,4 @@
-import { Product } from './entities/product';
+import { Product } from '../entities/product';
 import { faker } from '@faker-js/faker';
 import { dataSourceDecorator } from './test-decorators';
 

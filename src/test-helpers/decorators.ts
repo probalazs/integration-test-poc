@@ -1,7 +1,7 @@
-import { getInitializedDataSource } from './test-helpers';
+import { getInitializedDataSource } from './database';
 import { DataSource } from 'typeorm';
-import { User } from '../entities/user';
-import { Product } from '../entities/product';
+import { User } from '../../entities/user';
+import { Product } from '../../entities/product';
 
 export const dataSourceDecorator = dataSourceDecoratorWithEntities([
   User,
@@ -23,6 +23,6 @@ export function dataSourceDecoratorWithEntities(entities: any[]) {
       } finally {
         await close();
       }
-      return result;
+      return result as ReturnType<jest.ProvidesCallback>;
     };
 }

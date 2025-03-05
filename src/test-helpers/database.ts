@@ -7,7 +7,7 @@ export async function getInitializedDataSource(entities: any[]): Promise<{
   close: () => Promise<void>;
 }> {
   const connectionOptions = getConnectionOptions();
-  const datasource = await getDataSource(connectionOptions, entities);
+  const datasource = getDataSource(connectionOptions, entities);
   await createTestSchema(
     getSchemaFromDataSource(datasource),
     connectionOptions,
@@ -51,7 +51,7 @@ async function createTestSchema(
 }
 
 async function dropTestSchema(schemaName: string): Promise<void> {
-  const adminConnection = await createConnection(await getConnectionOptions());
+  const adminConnection = await createConnection(getConnectionOptions());
   await adminConnection.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
   await adminConnection.close();
 }
@@ -61,5 +61,6 @@ function getSchemaFromDataSource(datasource: DataSource): string {
 }
 
 function getConnectionOptions(): PostgresConnectionOptions {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return JSON.parse(process.env.__TEST_CONNECTION_OPTIONS!);
 }

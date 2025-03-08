@@ -10,7 +10,7 @@ export const createProduct = createObjectFactory(() => new Product())(() => ({
 
 export const createProductDto = createObjectFactory(() => new ProductDto())(
   () => ({
-    id: faker.number.int({ min: 1 }),
+    id: faker.string.uuid(),
     name: faker.commerce.productName(),
   }),
 );

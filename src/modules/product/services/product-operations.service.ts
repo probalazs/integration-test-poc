@@ -20,7 +20,7 @@ export class ProductOperationsService {
     return (await this.productDalService.findAll()).map(mapProductToDto);
   }
 
-  async findProductById(id: number): Promise<ProductDto> {
+  async findProductById(id: string): Promise<ProductDto> {
     try {
       return mapProductToDto(await this.productDalService.findById(id));
     } catch (error) {

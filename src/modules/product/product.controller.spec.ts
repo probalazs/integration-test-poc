@@ -39,7 +39,7 @@ describe('ProductController', () => {
     });
 
     it('should get product by id', async () => {
-      const id = faker.number.int();
+      const id = faker.string.uuid();
       const findProductById = jest.fn().mockResolvedValue(createProductDto());
       const controller = createController({
         productOperationsService: createMock<ProductOperationsService>({

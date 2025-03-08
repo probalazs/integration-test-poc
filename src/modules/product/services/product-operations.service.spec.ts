@@ -85,7 +85,7 @@ describe('ProductOperationsService', () => {
     });
 
     it('should throw error if product is not found', async () => {
-      const id = faker.number.int();
+      const id = faker.string.uuid();
       const service = createService({
         productDalService: createMock<ProductDalService>({
           findById: jest

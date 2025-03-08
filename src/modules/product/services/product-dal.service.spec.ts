@@ -5,7 +5,7 @@ import { ProductDalService } from './product-dal.service';
 import { dataSourceDecorator } from '../../../test-helpers/decorators';
 import { createProduct } from '../test-data-factory';
 import { omit } from 'ramda';
-
+import { faker } from '@faker-js/faker';
 describe('ProductDalService', () => {
   describe('findAll', () => {
     it(
@@ -53,7 +53,9 @@ describe('ProductDalService', () => {
       dataSourceDecorator(async ({ datasource }) => {
         const service = createService({ datasource });
 
-        await expect(service.findById(1)).rejects.toThrow(EntityNotFoundError);
+        await expect(service.findById(faker.string.uuid())).rejects.toThrow(
+          EntityNotFoundError,
+        );
       }),
     );
   });

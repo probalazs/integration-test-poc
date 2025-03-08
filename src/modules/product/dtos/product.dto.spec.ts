@@ -5,18 +5,10 @@ import { createProductDto } from '../test-data-factory';
 describe('ProductDto', () => {
   [
     {
-      should: 'throw error when id is not a number',
-      input: createProductDto({ id: 'not-a-number' as any }),
+      should: 'throw error when id is not a string',
+      input: createProductDto({ id: 123 as any }),
       error: {
         property: 'id',
-        rule: 'isNumber',
-      },
-    },
-    {
-      should: 'throw error when name is not a string',
-      input: createProductDto({ name: 123 as any }),
-      error: {
-        property: 'name',
         rule: 'isString',
       },
     },

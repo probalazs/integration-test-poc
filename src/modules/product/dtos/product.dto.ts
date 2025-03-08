@@ -1,9 +1,9 @@
-import { IsDefined, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsDefined, IsNotEmpty, IsString } from 'class-validator';
 
 export class ProductDto {
-  @IsNumber()
+  @IsString()
   @IsDefined()
-  id!: number;
+  id!: string;
 
   @IsNotEmpty()
   @IsString()

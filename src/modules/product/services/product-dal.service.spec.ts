@@ -34,7 +34,7 @@ describe('ProductDalService', () => {
     );
   });
 
-  describe('findOne', () => {
+  describe('findById', () => {
     it(
       'should return an existing product',
       dataSourceDecorator(async ({ datasource }) => {
@@ -42,7 +42,7 @@ describe('ProductDalService', () => {
         await addProducts(datasource, [product]);
         const service = createService({ datasource });
 
-        const result = await service.findOne(product.id);
+        const result = await service.findById(product.id);
 
         expect(result).toEqual(product);
       }),
@@ -53,7 +53,7 @@ describe('ProductDalService', () => {
       dataSourceDecorator(async ({ datasource }) => {
         const service = createService({ datasource });
 
-        await expect(service.findOne(1)).rejects.toThrow(EntityNotFoundError);
+        await expect(service.findById(1)).rejects.toThrow(EntityNotFoundError);
       }),
     );
   });

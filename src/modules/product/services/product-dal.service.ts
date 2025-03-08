@@ -11,7 +11,7 @@ export class ProductDalService {
     return this.dataSource.getRepository(Product).find();
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findById(id: number): Promise<Product> {
     return this.dataSource.getRepository(Product).findOneByOrFail({ id });
   }
 

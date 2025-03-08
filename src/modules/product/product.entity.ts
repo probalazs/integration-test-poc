@@ -5,6 +5,6 @@ export class Product {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column('numeric')
-  price!: number;
+  @Column('varchar')
+  name!: string;
 }

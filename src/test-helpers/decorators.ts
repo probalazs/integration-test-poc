@@ -1,12 +1,8 @@
 import { getInitializedDataSource } from './database';
 import { DataSource } from 'typeorm';
-import { User } from '../../entities/user';
-import { Product } from '../../entities/product';
+import { entities } from '../entities';
 
-export const dataSourceDecorator = dataSourceDecoratorWithEntities([
-  User,
-  Product,
-]);
+export const dataSourceDecorator = dataSourceDecoratorWithEntities(entities);
 
 export function dataSourceDecoratorWithEntities(entities: any[]) {
   return (

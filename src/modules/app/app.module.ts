@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { CommonModule } from '../common/common.module';
 import { config } from '../../config';
 import { entities } from '../../entities';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ProductModule } from '../product/product.module';
 
 const connection: TypeOrmModuleOptions = {
   type: 'postgres',
@@ -16,8 +16,8 @@ const connection: TypeOrmModuleOptions = {
 };
 
 @Module({
-  imports: [CommonModule.forRoot(connection)],
-  controllers: [AppController],
+  imports: [CommonModule.forRoot(connection), ProductModule],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

@@ -108,19 +108,16 @@
 - Test service dependencies
 - Validate event handling and message queues
 
-### Flow Testing with UI
+### Flow Testing with UI/Merchant API
 
 - Test complete user journeys
 - Verify business processes end-to-end
 - Test multi-step workflows
-- Validate UI state management
-
-### Flow Testing Without Merchant APIs
-
-- Test system behavior in isolation
-- Use mock data for external services
-- Verify fallback mechanisms
-- Test error scenarios and recovery
+- Validate webhook handling and notifications
+- Test rate limiting and API quotas
+- Verify error handling and retry mechanisms
+- Test concurrent transaction handling
+- Verify reconciliation processes
 
 ## Testing Principles
 

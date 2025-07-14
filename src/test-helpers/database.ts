@@ -2,11 +2,13 @@ import { faker } from '@faker-js/faker';
 import { DataSource, createConnection } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
-export async function getInitializedDataSource(entities: any[]): Promise<{
+export async function getInitializedDataSource(
+  entities: any[],
+  connectionOptions: PostgresConnectionOptions,
+): Promise<{
   datasource: DataSource;
   close: () => Promise<void>;
 }> {
-  const connectionOptions = getConnectionOptions();
   const datasource = getDataSource(connectionOptions, entities);
   await createTestSchema(
     getSchemaFromDataSource(datasource),
@@ -15,7 +17,7 @@ export async function getInitializedDataSource(entities: any[]): Promise<{
   await datasource.initialize();
   return {
     datasource,
-    close: () => destroyDataSource(datasource),
+    close: () => destroyDataSource(datasource, connectionOptions),
   };
 }
 
@@ -23,8 +25,11 @@ function getSchemaName() {
   return `test_schema_${faker.string.uuid()}`;
 }
 
-async function destroyDataSource(datasource: DataSource): Promise<void> {
-  await dropTestSchema(getSchemaFromDataSource(datasource));
+async function destroyDataSource(
+  datasource: DataSource,
+  connectionOptions: PostgresConnectionOptions,
+): Promise<void> {
+  await dropTestSchema(getSchemaFromDataSource(datasource), connectionOptions);
   await datasource.destroy();
 }
 
@@ -50,17 +55,15 @@ async function createTestSchema(
   await adminConnection.close();
 }
 
-async function dropTestSchema(schemaName: string): Promise<void> {
-  const adminConnection = await createConnection(getConnectionOptions());
+async function dropTestSchema(
+  schemaName: string,
+  connectionOptions: PostgresConnectionOptions,
+): Promise<void> {
+  const adminConnection = await createConnection(connectionOptions);
   await adminConnection.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
   await adminConnection.close();
 }
 
 function getSchemaFromDataSource(datasource: DataSource): string {
   return (datasource.options as PostgresConnectionOptions).schema!;
-}
-
-function getConnectionOptions(): PostgresConnectionOptions {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return JSON.parse(process.env.__TEST_CONNECTION_OPTIONS!);
 }

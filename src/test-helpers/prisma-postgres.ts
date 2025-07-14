@@ -2,24 +2,26 @@ import { faker } from '@faker-js/faker';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { PrismaClient } from '../prisma/client';
 import { execSync } from 'child_process';
-import * as path from 'path';
 
-export async function getInitializedPrismaPostgres(): Promise<{
+export async function getInitializedPrismaPostgres(
+  schemaFile: string,
+  connectionOptions: PostgresConnectionOptions,
+): Promise<{
   client: PrismaClient;
   close: () => Promise<void>;
 }> {
-  const connectionOptions = getConnectionOptions();
   const schemaName = getSchemaName();
+  const connectionUrl = getConnectionString(connectionOptions, schemaName);
   const client = new PrismaClient({
     datasources: {
       db: {
-        url: getConnectionString(connectionOptions, schemaName),
+        url: connectionUrl,
       },
     },
   });
 
   await createTestSchema(client, schemaName);
-  initializeDb(getConnectionString(connectionOptions, schemaName));
+  initializeDb(connectionUrl, schemaFile);
   await client.$connect();
   return {
     client,
@@ -65,14 +67,9 @@ async function dropTestSchema(
   );
 }
 
-function getConnectionOptions(): PostgresConnectionOptions {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return JSON.parse(process.env.__TEST_CONNECTION_OPTIONS!);
-}
-
-function initializeDb(connectionUrl: string): void {
+function initializeDb(connectionUrl: string, schemaFile: string): void {
   execSync(
-    `npx prisma db push --skip-generate --accept-data-loss --schema=${path.join(__dirname, '..', 'prisma', 'schema.prisma')}`,
+    `npx prisma db push --skip-generate --accept-data-loss --schema=${schemaFile}`,
     {
       env: {
         ...process.env,

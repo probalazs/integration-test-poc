@@ -8,6 +8,7 @@ export type Config = {
   readonly pgUser: string;
   readonly pgPassword: string;
   readonly pgDb: string;
+  readonly pgSchema: string;
 };
 
 export const config: Config = {
@@ -16,4 +17,5 @@ export const config: Config = {
   pgUser: process.env.PG_USER!,
   pgPassword: process.env.PG_PASSWORD!,
   pgDb: process.env.PG_DB!,
+  pgSchema: process.env.PG_SCHEMA!,
 };

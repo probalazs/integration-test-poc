@@ -1,6 +1,8 @@
 import { getInitializedDataSource } from './database';
 import { DataSource } from 'typeorm';
 import { entities } from '../entities';
+import { getInitializedPrismaPostgres } from './prisma-postgres';
+import { PrismaClient } from '../prisma/client';
 
 export const dataSourceDecorator = dataSourceDecoratorWithEntities(entities);
 
@@ -16,6 +18,27 @@ export function dataSourceDecoratorWithEntities(entities: any[]) {
       let result: any;
       try {
         result = await fn({ datasource }, ...args);
+      } finally {
+        await close();
+      }
+      return result as ReturnType<jest.ProvidesCallback>;
+    };
+}
+
+export const prismaPostgresDecorator = createPrismaPostgresDecorator();
+
+export function createPrismaPostgresDecorator() {
+  return (
+      fn: (
+        context: { prismaPostgres: PrismaClient },
+        ...args: any[]
+      ) => ReturnType<jest.ProvidesCallback>,
+    ) =>
+    async (...args: any[]) => {
+      const { client, close } = await getInitializedPrismaPostgres();
+      let result: any;
+      try {
+        result = await fn({ prismaPostgres: client }, ...args);
       } finally {
         await close();
       }

@@ -1,7 +1,7 @@
-import { getInitializedDataSource } from './database';
+import { getInitializedDataSource } from './decorators/database';
 import { DataSource } from 'typeorm';
 import { entities } from '../entities';
-import { getInitializedPrismaPostgres } from './prisma-postgres';
+import { getInitializedPrismaPostgres } from './decorators/prisma-postgres';
 import { PrismaClient } from '../prisma/client';
 import * as path from 'path';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
@@ -41,15 +41,18 @@ export function dataSourceDecoratorWithEntities(
     };
 }
 
-export const prismaPostgresDecorator = createPrismaPostgresDecorator(
-  path.join(__dirname, '..', 'prisma', 'schema.prisma'),
-  connectionOptions,
-);
+export const prismaPostgresDecorator = createPrismaPostgresDecorator({
+  schemaFile: path.join(__dirname, '..', 'prisma', 'schema.prisma'),
+  dbEnv: 'DATABASE_URL',
+  getDBUrl: (schemaName: string) =>
+    `postgresql://${connectionOptions.username}:${connectionOptions.password as string}@${connectionOptions.host}:${connectionOptions.port}/${connectionOptions.database}?schema=${schemaName}`,
+});
 
-export function createPrismaPostgresDecorator(
-  schemaFile: string,
-  connectionOptions: PostgresConnectionOptions,
-) {
+export function createPrismaPostgresDecorator(config: {
+  schemaFile: string;
+  dbEnv: string;
+  getDBUrl: (schemaName: string) => string;
+}) {
   return (
       fn: (
         context: { prismaPostgres: PrismaClient },
@@ -57,10 +60,7 @@ export function createPrismaPostgresDecorator(
       ) => ReturnType<jest.ProvidesCallback>,
     ) =>
     async (...args: any[]) => {
-      const { client, close } = await getInitializedPrismaPostgres(
-        schemaFile,
-        connectionOptions,
-      );
+      const { client, close } = await getInitializedPrismaPostgres(config);
       let result: any;
       try {
         result = await fn({ prismaPostgres: client }, ...args);

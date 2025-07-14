@@ -1,17 +1,17 @@
 import { faker } from '@faker-js/faker';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { PrismaClient } from '../prisma/client';
 import { execSync } from 'child_process';
+import { PrismaClient } from '../../prisma/client';
 
-export async function getInitializedPrismaPostgres(
-  schemaFile: string,
-  connectionOptions: PostgresConnectionOptions,
-): Promise<{
+export async function getInitializedPrismaPostgres(config: {
+  schemaFile: string;
+  dbEnv: string;
+  getDBUrl: (schemaName: string) => string;
+}): Promise<{
   client: PrismaClient;
   close: () => Promise<void>;
 }> {
   const schemaName = getSchemaName();
-  const connectionUrl = getConnectionString(connectionOptions, schemaName);
+  const connectionUrl = config.getDBUrl(schemaName);
   const client = new PrismaClient({
     datasources: {
       db: {
@@ -21,19 +21,12 @@ export async function getInitializedPrismaPostgres(
   });
 
   await createTestSchema(client, schemaName);
-  initializeDb(connectionUrl, schemaFile);
+  initializeDb(connectionUrl, config.schemaFile, config.dbEnv);
   await client.$connect();
   return {
     client,
     close: () => destroyPrismaPostgres(client, schemaName),
   };
-}
-
-function getConnectionString(
-  options: PostgresConnectionOptions,
-  schemaName: string,
-): string {
-  return `postgresql://${options.username}:${options.password as string}@${options.host}:${options.port}/${options.database}?schema=${schemaName}`;
 }
 
 function getSchemaName() {
@@ -67,13 +60,17 @@ async function dropTestSchema(
   );
 }
 
-function initializeDb(connectionUrl: string, schemaFile: string): void {
+function initializeDb(
+  connectionUrl: string,
+  schemaFile: string,
+  dbEnv: string,
+): void {
   execSync(
     `npx prisma db push --skip-generate --accept-data-loss --schema=${schemaFile}`,
     {
       env: {
         ...process.env,
-        DATABASE_URL: connectionUrl,
+        [dbEnv]: connectionUrl,
       },
     },
   );

@@ -1,6 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { PrismaClient } from '../prisma/client';
+import { execSync } from 'child_process';
+import * as path from 'path';
 
 export async function getInitializedPrismaPostgres(): Promise<{
   client: PrismaClient;
@@ -17,6 +19,7 @@ export async function getInitializedPrismaPostgres(): Promise<{
   });
 
   await createTestSchema(client, schemaName);
+  initializeDb(getConnectionString(connectionOptions, schemaName));
   await client.$connect();
   return {
     client,
@@ -65,4 +68,16 @@ async function dropTestSchema(
 function getConnectionOptions(): PostgresConnectionOptions {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return JSON.parse(process.env.__TEST_CONNECTION_OPTIONS!);
+}
+
+function initializeDb(connectionUrl: string): void {
+  execSync(
+    `npx prisma db push --skip-generate --accept-data-loss --schema=${path.join(__dirname, '..', 'prisma', 'schema.prisma')}`,
+    {
+      env: {
+        ...process.env,
+        DATABASE_URL: connectionUrl,
+      },
+    },
+  );
 }

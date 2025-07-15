@@ -1,39 +1,40 @@
-import { getInitializedDataSource } from './decorators/database';
+import {
+  getInitializedTypeormPostgres,
+  TypeormPostgresConfig,
+} from './decorator-initializers/typeorm-postgres';
 import { DataSource } from 'typeorm';
 import { entities } from '../entities';
-import { getInitializedPrismaPostgres } from './decorators/prisma-postgres';
+import {
+  getInitializedPrismaPostgres,
+  PrismaPostgresConfig,
+} from './decorator-initializers/prisma-postgres';
 import { PrismaClient } from '../prisma/client';
 import * as path from 'path';
-import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
+import { TestPostgresConnectionOptions } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 const connectionOptions = JSON.parse(
-  process.env.__TEST_CONNECTION_OPTIONS!,
-) as PostgresConnectionOptions;
+  process.env.__TEST_POSTGRES_CONNECTION_OPTIONS!,
+) as TestPostgresConnectionOptions;
 
-export const dataSourceDecorator = dataSourceDecoratorWithEntities(
+export const dataSourceDecorator = dataSourceDecoratorWithEntities({
   entities,
   connectionOptions,
-);
+});
 
-export function dataSourceDecoratorWithEntities(
-  entities: any[],
-  connectionOptions: PostgresConnectionOptions,
-) {
+function dataSourceDecoratorWithEntities(config: TypeormPostgresConfig) {
   return (
       fn: (
-        context: { datasource: DataSource },
+        context: { typeormPostgresDataSource: DataSource },
         ...args: any[]
       ) => ReturnType<jest.ProvidesCallback>,
     ) =>
     async (...args: any[]) => {
-      const { datasource, close } = await getInitializedDataSource(
-        entities,
-        connectionOptions,
-      );
+      const { datasource: typeormPostgresDataSource, close } =
+        await getInitializedTypeormPostgres(config);
       let result: any;
       try {
-        result = await fn({ datasource }, ...args);
+        result = await fn({ typeormPostgresDataSource }, ...args);
       } finally {
         await close();
       }
@@ -44,26 +45,22 @@ export function dataSourceDecoratorWithEntities(
 export const prismaPostgresDecorator = createPrismaPostgresDecorator({
   schemaFile: path.join(__dirname, '..', 'prisma', 'schema.prisma'),
   dbEnv: 'DATABASE_URL',
-  getDBUrl: (schemaName: string) =>
-    `postgresql://${connectionOptions.username}:${connectionOptions.password as string}@${connectionOptions.host}:${connectionOptions.port}/${connectionOptions.database}?schema=${schemaName}`,
+  connectionOptions,
 });
 
-export function createPrismaPostgresDecorator(config: {
-  schemaFile: string;
-  dbEnv: string;
-  getDBUrl: (schemaName: string) => string;
-}) {
+function createPrismaPostgresDecorator(config: PrismaPostgresConfig) {
   return (
       fn: (
-        context: { prismaPostgres: PrismaClient },
+        context: { prismaPostgresClient: PrismaClient },
         ...args: any[]
       ) => ReturnType<jest.ProvidesCallback>,
     ) =>
     async (...args: any[]) => {
-      const { client, close } = await getInitializedPrismaPostgres(config);
+      const { prismaPostgresClient, close } =
+        await getInitializedPrismaPostgres(config);
       let result: any;
       try {
-        result = await fn({ prismaPostgres: client }, ...args);
+        result = await fn({ prismaPostgresClient }, ...args);
       } finally {
         await close();
       }

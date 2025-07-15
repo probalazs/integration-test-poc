@@ -9,27 +9,31 @@ describe('WarehouseDalService', () => {
   describe('findAll', () => {
     it(
       'should return empty array if no warehouses exist',
-      prismaPostgresDecorator(async ({ prismaPostgres }) => {
-        const service = createService({ prisma: prismaPostgres as any });
+      prismaPostgresDecorator(
+        async ({ prismaPostgresClient: prismaPostgres }) => {
+          const service = createService({ prisma: prismaPostgres as any });
 
-        const products = await service.findAll();
+          const products = await service.findAll();
 
-        expect(products).toEqual([]);
-      }),
+          expect(products).toEqual([]);
+        },
+      ),
     );
 
     it(
       'should return all warehouses',
-      prismaPostgresDecorator(async ({ prismaPostgres }) => {
-        const service = createService({ prisma: prismaPostgres as any });
+      prismaPostgresDecorator(
+        async ({ prismaPostgresClient: prismaPostgres }) => {
+          const service = createService({ prisma: prismaPostgres as any });
 
-        const warehouses = [createWarehouse(), createWarehouse()];
-        await addWarehouses(prismaPostgres, warehouses);
+          const warehouses = [createWarehouse(), createWarehouse()];
+          await addWarehouses(prismaPostgres, warehouses);
 
-        const result = await service.findAll();
+          const result = await service.findAll();
 
-        expect(result).toEqual(warehouses);
-      }),
+          expect(result).toEqual(warehouses);
+        },
+      ),
     );
   });
 });

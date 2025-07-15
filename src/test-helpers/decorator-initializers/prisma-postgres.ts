@@ -1,17 +1,22 @@
 import { faker } from '@faker-js/faker';
 import { execSync } from 'child_process';
 import { PrismaClient } from '../../prisma/client';
+import { TestPostgresConnectionOptions } from '../types';
 
-export async function getInitializedPrismaPostgres(config: {
+export type PrismaPostgresConfig = {
   schemaFile: string;
   dbEnv: string;
-  getDBUrl: (schemaName: string) => string;
-}): Promise<{
-  client: PrismaClient;
+  connectionOptions: TestPostgresConnectionOptions;
+};
+
+export async function getInitializedPrismaPostgres(
+  config: PrismaPostgresConfig,
+): Promise<{
+  prismaPostgresClient: PrismaClient;
   close: () => Promise<void>;
 }> {
   const schemaName = getSchemaName();
-  const connectionUrl = config.getDBUrl(schemaName);
+  const connectionUrl = getConnectionUrl(config.connectionOptions, schemaName);
   const client = new PrismaClient({
     datasources: {
       db: {
@@ -24,9 +29,16 @@ export async function getInitializedPrismaPostgres(config: {
   initializeDb(connectionUrl, config.schemaFile, config.dbEnv);
   await client.$connect();
   return {
-    client,
+    prismaPostgresClient: client,
     close: () => destroyPrismaPostgres(client, schemaName),
   };
+}
+
+function getConnectionUrl(
+  connectionOptions: TestPostgresConnectionOptions,
+  schemaName: string,
+) {
+  return `postgresql://${connectionOptions.username}:${connectionOptions.password}@${connectionOptions.host}:${connectionOptions.port}/${connectionOptions.database}?schema=${schemaName}`;
 }
 
 function getSchemaName() {

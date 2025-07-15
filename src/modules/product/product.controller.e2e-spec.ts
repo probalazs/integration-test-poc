@@ -16,7 +16,7 @@ describe('ProductController (e2e)', () => {
   describe('GET /product', () => {
     it(
       'should return status 200',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const app = await createProductModule(
           datasource.options as PostgresConnectionOptions,
         );
@@ -26,7 +26,7 @@ describe('ProductController (e2e)', () => {
 
     it(
       'should return all products',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const products = [createProduct(), createProduct()];
         await addProducts(datasource, products);
         const app = await createProductModule(
@@ -45,7 +45,7 @@ describe('ProductController (e2e)', () => {
   describe('GET /product/:id', () => {
     it(
       'should return status 200',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const id = faker.string.uuid();
         const product = createProduct({ id } as any);
         await addProducts(datasource, [product]);
@@ -59,7 +59,7 @@ describe('ProductController (e2e)', () => {
 
     it(
       'should return status 404',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const id = faker.string.uuid();
         const app = await createProductModule(
           datasource.options as PostgresConnectionOptions,
@@ -71,7 +71,7 @@ describe('ProductController (e2e)', () => {
 
     it(
       'should return the product',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const id = faker.string.uuid();
         const product = createProduct({ id } as any);
         await addProducts(datasource, [product]);
@@ -91,7 +91,7 @@ describe('ProductController (e2e)', () => {
   describe('PUT /product', () => {
     it(
       'should return status 201',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const app = await createProductModule(
           datasource.options as PostgresConnectionOptions,
         );
@@ -108,7 +108,7 @@ describe('ProductController (e2e)', () => {
 
     it(
       'should return status 400 if input is invalid',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const app = await createProductModule(
           datasource.options as PostgresConnectionOptions,
         );
@@ -125,7 +125,7 @@ describe('ProductController (e2e)', () => {
 
     it(
       'should return created product',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const name = faker.commerce.productName();
         const app = await createProductModule(
           datasource.options as PostgresConnectionOptions,

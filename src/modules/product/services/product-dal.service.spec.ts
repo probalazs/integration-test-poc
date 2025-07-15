@@ -10,7 +10,7 @@ describe('ProductDalService', () => {
   describe('findAll', () => {
     it(
       'should return empty array if no products exist',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const service = createService({ datasource });
 
         const products = await service.findAll();
@@ -21,7 +21,7 @@ describe('ProductDalService', () => {
 
     it(
       'should return all products',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const service = createService({ datasource });
 
         const products = [createProduct(), createProduct()];
@@ -37,7 +37,7 @@ describe('ProductDalService', () => {
   describe('findById', () => {
     it(
       'should return an existing product',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const product = createProduct();
         await addProducts(datasource, [product]);
         const service = createService({ datasource });
@@ -50,7 +50,7 @@ describe('ProductDalService', () => {
 
     it(
       'should throw an error if the product does not exist',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const service = createService({ datasource });
 
         await expect(service.findById(faker.string.uuid())).rejects.toThrow(
@@ -63,7 +63,7 @@ describe('ProductDalService', () => {
   describe('create', () => {
     it(
       'should create a product',
-      dataSourceDecorator(async ({ datasource }) => {
+      dataSourceDecorator(async ({ typeormPostgresDataSource: datasource }) => {
         const service = createService({ datasource });
         const product = createProduct();
         const result = await service.create(product);

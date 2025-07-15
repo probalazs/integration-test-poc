@@ -46,12 +46,16 @@ export const prismaPostgresDecorator = createPrismaPostgresDecorator({
   schemaFile: path.join(__dirname, '..', 'prisma', 'schema.prisma'),
   dbEnv: 'DATABASE_URL',
   connectionOptions,
+  createPrismaClient: (url) =>
+    new PrismaClient({ datasources: { db: { url } } }),
 });
 
-function createPrismaPostgresDecorator(config: PrismaPostgresConfig) {
+function createPrismaPostgresDecorator<T extends PrismaClient>(
+  config: PrismaPostgresConfig<T>,
+) {
   return (
       fn: (
-        context: { prismaPostgresClient: PrismaClient },
+        context: { prismaPostgresClient: T },
         ...args: any[]
       ) => ReturnType<jest.ProvidesCallback>,
     ) =>

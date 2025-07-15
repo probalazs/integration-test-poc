@@ -3,27 +3,22 @@ import { execSync } from 'child_process';
 import { PrismaClient } from '../../prisma/client';
 import { TestPostgresConnectionOptions } from '../types';
 
-export type PrismaPostgresConfig = {
+export type PrismaPostgresConfig<T extends PrismaClient> = {
   schemaFile: string;
   dbEnv: string;
   connectionOptions: TestPostgresConnectionOptions;
+  createPrismaClient: (url: string) => T;
 };
 
-export async function getInitializedPrismaPostgres(
-  config: PrismaPostgresConfig,
+export async function getInitializedPrismaPostgres<T extends PrismaClient>(
+  config: PrismaPostgresConfig<T>,
 ): Promise<{
-  prismaPostgresClient: PrismaClient;
+  prismaPostgresClient: T;
   close: () => Promise<void>;
 }> {
   const schemaName = getSchemaName();
   const connectionUrl = getConnectionUrl(config.connectionOptions, schemaName);
-  const client = new PrismaClient({
-    datasources: {
-      db: {
-        url: connectionUrl,
-      },
-    },
-  });
+  const client = config.createPrismaClient(connectionUrl);
 
   await createTestSchema(client, schemaName);
   initializeDb(connectionUrl, config.schemaFile, config.dbEnv);

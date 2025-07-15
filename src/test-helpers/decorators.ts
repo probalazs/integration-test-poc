@@ -10,7 +10,7 @@ import {
 } from './decorator-initializers/prisma-postgres';
 import { PrismaClient } from '../prisma/client';
 import * as path from 'path';
-import { TestPostgresConnectionOptions } from './types';
+import { PrismaClientSkeleton, TestPostgresConnectionOptions } from './types';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-return
 const connectionOptions = JSON.parse(
@@ -50,7 +50,7 @@ export const prismaPostgresDecorator = createPrismaPostgresDecorator({
     new PrismaClient({ datasources: { db: { url } } }),
 });
 
-function createPrismaPostgresDecorator<T extends PrismaClient>(
+function createPrismaPostgresDecorator<T extends PrismaClientSkeleton>(
   config: PrismaPostgresConfig<T>,
 ) {
   return (

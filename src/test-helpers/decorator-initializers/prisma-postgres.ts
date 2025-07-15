@@ -1,16 +1,17 @@
 import { faker } from '@faker-js/faker';
 import { execSync } from 'child_process';
-import { PrismaClient } from '../../prisma/client';
-import { TestPostgresConnectionOptions } from '../types';
+import { PrismaClientSkeleton, TestPostgresConnectionOptions } from '../types';
 
-export type PrismaPostgresConfig<T extends PrismaClient> = {
+export type PrismaPostgresConfig<T extends PrismaClientSkeleton> = {
   schemaFile: string;
   dbEnv: string;
   connectionOptions: TestPostgresConnectionOptions;
   createPrismaClient: (url: string) => T;
 };
 
-export async function getInitializedPrismaPostgres<T extends PrismaClient>(
+export async function getInitializedPrismaPostgres<
+  T extends PrismaClientSkeleton,
+>(
   config: PrismaPostgresConfig<T>,
 ): Promise<{
   prismaPostgresClient: T;
@@ -41,7 +42,7 @@ function getSchemaName() {
 }
 
 async function destroyPrismaPostgres(
-  client: PrismaClient,
+  client: PrismaClientSkeleton,
   schemaName: string,
 ): Promise<void> {
   await dropTestSchema(client, schemaName);
@@ -49,7 +50,7 @@ async function destroyPrismaPostgres(
 }
 
 async function createTestSchema(
-  client: PrismaClient,
+  client: PrismaClientSkeleton,
   schemaName: string,
 ): Promise<void> {
   await client.$executeRawUnsafe(
@@ -59,7 +60,7 @@ async function createTestSchema(
 }
 
 async function dropTestSchema(
-  client: PrismaClient,
+  client: PrismaClientSkeleton,
   schemaName: string,
 ): Promise<void> {
   await client.$executeRawUnsafe(
